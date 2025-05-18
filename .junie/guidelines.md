@@ -3,6 +3,9 @@
 ## Purpose
 This template is designed to quickly and safely create MCP (Model Context Protocol) servers in Kotlin. It provides a structured approach to implementing resources, prompts, and tools for MCP servers.
 
+## Documentation
+KDocs are ESSENTIAL for any data class based schemas (including for all properties), as these are used to create the description that will be exposed for the MCP server.
+
 ## Testing Guidelines
 Tests should be implemented at two levels, when possible:
 
@@ -232,5 +235,6 @@ fun createServer(): Server {
 }
 ```
 
-## Important Note
-When implementing your first resource/prompt/tool, remember to remove all "Hello World" related files from the project. The examples above are provided as reference only.
+## Changes on first run
+- When implementing your first resource/prompt/tool, remember to remove all "Hello World" related files from the project. The examples above are provided as reference only.
+- Rename the project and all of the instances of "mcp-kotlin-template" either as specified or make a good guess based on the request.
