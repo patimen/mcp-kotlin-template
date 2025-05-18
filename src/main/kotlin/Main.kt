@@ -29,13 +29,15 @@ import kotlinx.io.buffered
  */
 fun main(args: Array<String>) {
     val server = createServer()
-    val command = args.firstOrNull() ?: "--sse-server-ktor"
+    val command = args.firstOrNull() ?: "--stdio"
     val port = args.getOrNull(1)?.toIntOrNull() ?: 3001
     when (command) {
         "--stdio" -> runMcpServerUsingStdio(server)
         "--sse-server-ktor" -> runSseMcpServerUsingKtorPlugin(server, port)
         "--sse-server" -> runSseMcpServerWithPlainConfiguration(server, port)
-        else -> runMcpServerUsingStdio(server)
+        else -> {
+            System.err.println("Error: Invalid command '$command'. Valid commands are: --stdio, --sse-server-ktor, --sse-server")
+        }
     }
 }
 
