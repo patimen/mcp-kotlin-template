@@ -6,6 +6,55 @@ This template is designed to quickly and safely create MCP (Model Context Protoc
 ## Documentation
 KDocs are ESSENTIAL for any data class based schemas (including for all properties), as these are used to create the description that will be exposed for the MCP server.
 
+## REST APIs
+Lot's of MCP servers will be built around REST API's. Here are some general guidelines (unless overridden in the request, of course):
+- Use a Ktor HTTP Client
+```
+suspend fun HttpClient.getForecast(latitude: Double, longitude: Double): List<String> {
+    // Build the URI using provided latitude and longitude
+    val uri = "/points/$latitude,$longitude"
+    // Request the points data from the API
+    val points = this.get(uri).body<Points>()
+
+    // Request the forecast using the URL provided in the points response
+    val forecast = this.get(points.properties.forecast).body<Forecast>()
+
+    // Map each forecast period to a formatted string
+    return forecast.properties.periods.map { period ->
+        """
+            ${period.name}:
+            Temperature: ${period.temperature} ${period.temperatureUnit}
+            Wind: ${period.windSpeed} ${period.windDirection}
+            Forecast: ${period.detailedForecast}
+        """.trimIndent()
+    }
+}
+```
+- Initialize the client like this, at the same time you setup the MCP Server:
+```
+    // Create an HTTP client with a default request configuration and JSON content negotiation
+    val httpClient = HttpClient {
+        defaultRequest {
+            url(baseUrl)
+            headers {
+                append("Accept", "application/geo+json")
+                append("User-Agent", "WeatherApiClient/1.0")
+            }
+            contentType(ContentType.Application.Json)
+        }
+        // Install content negotiation plugin for JSON serialization/deserialization
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                prettyPrint = true
+            })
+        }
+    }
+```
+- Use serialization to marshal requests and unmarshal responses.
+- Use data classes as the request/response
+- Allow for auth keys both to be passed as an environment variable OR as a parameter to a tool.
+
 ## Testing Guidelines
 Tests should be implemented at two levels, when possible:
 

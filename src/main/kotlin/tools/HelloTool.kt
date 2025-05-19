@@ -11,6 +11,10 @@ import kotlinx.serialization.json.decodeFromJsonElement
 
 import sh.ondr.koja.JsonSchema
 
+/**
+ * Says Hello to the user, using their name.
+ * @property name The name of the user
+ */
 @JsonSchema
 @Serializable
 data class HelloToolSchema(val name: String)
