@@ -113,7 +113,7 @@ class MCPServerTestWrapper(
 
         // Read the response
         val responseBuilder = StringBuilder()
-        val buffer = ByteArray(1024)
+        val buffer = ByteArray(4096)
         var bytesRead: Int
 
         // Wait for data to be available
@@ -122,14 +122,35 @@ class MCPServerTestWrapper(
         }
 
         // Read all available data
-        while (testFromServer.available() > 0) {
-            bytesRead = testFromServer.read(buffer)
-            if (bytesRead > 0) {
-                responseBuilder.append(String(buffer, 0, bytesRead))
+        do {
+            // Wait a bit for more data to arrive
+            delay(100)
+
+            // Read available data
+            while (testFromServer.available() > 0) {
+                bytesRead = testFromServer.read(buffer)
+                if (bytesRead > 0) {
+                    responseBuilder.append(String(buffer, 0, bytesRead))
+                }
             }
-        }
+
+            // Try to parse the response to see if it's complete
+            val responseString = responseBuilder.toString().trim()
+            try {
+                Json.parseToJsonElement(responseString)
+                // If we get here, the JSON is valid and complete
+                break
+            } catch (e: Exception) {
+                // If we get here, the JSON is incomplete or invalid
+                println("[DEBUG_LOG] Waiting for more data... Current length: ${responseString.length}")
+                // Continue reading
+            }
+        } while (true)
 
         val responseString = responseBuilder.toString().trim()
+
+        // Print the raw response for debugging
+        println("[DEBUG_LOG] Raw response: $responseString")
 
         // Parse the response
         val responseJson = Json.parseToJsonElement(responseString).jsonObject
